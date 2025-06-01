@@ -52,18 +52,40 @@
             }
 
             for (var i = 0; i < urls.length; i++) {
-                if (urls[i] === '' || urls[i].trim() === '') {
+                var line = urls[i];
+                if (!line || line.trim() === '') {
                     continue;
                 }
 
+                var parts = line.trim().split(/\s+/);
+                if (parts.length === 0) {
+                    continue;
+                }
+
+                var url = parts[0];
+                var taskOptions = angular.copy(options);
+
+                // 从第二项开始解析 --key=value 格式
+                for (var j = 1; j < parts.length; j++) {
+                    var match = parts[j].match(/^--([^=]+)=(.+)$/);
+                    if (match) {
+                        var key = match[1].trim();
+                        var value = match[2].trim();
+                        if (key && value) {
+                            taskOptions[key] = value;
+                        }
+                    }
+                }
+
                 tasks.push({
-                    urls: [urls[i].trim()],
-                    options: options
+                    urls: [url],
+                    options: taskOptions
                 });
             }
 
             return tasks;
         };
+
 
         var downloadByLinks = function (pauseOnAdded, responseCallback) {
             var options = angular.copy($scope.context.options);
@@ -209,11 +231,12 @@
         };
 
         $scope.startDownload = function (pauseOnAdded) {
+
+
             var responseCallback = function (response) {
                 if (!response.hasSuccess && !response.success) {
                     return;
                 }
-
                 var firstTask = null;
 
                 if (response.results && response.results.length > 0) {

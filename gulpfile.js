@@ -164,7 +164,7 @@ gulp.task('build-bundle', gulp.series('lint', 'process-assets-bundle', 'process-
 
 gulp.task('serve', gulp.series('prepare-styles', 'prepare-scripts', 'prepare-fonts', () => {
     browserSync({
-        notify: false,
+        notify: true,
         port: 9000,
         server: {
             baseDir: ['.tmp', 'src'],
